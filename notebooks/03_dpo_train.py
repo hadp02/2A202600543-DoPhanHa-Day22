@@ -78,6 +78,15 @@ assert torch.cuda.is_available(), "DPO needs a CUDA GPU. See HARDWARE-GUIDE.md."
 # %%
 from unsloth import FastLanguageModel
 from peft import PeftModel
+import sys
+try:
+    import unsloth.utils.attention_dispatch
+    unsloth.utils.attention_dispatch.HAS_XFORMERS = False
+except Exception:
+    pass
+for mod_name, mod in list(sys.modules.items()):
+    if mod_name.startswith("unsloth") and hasattr(mod, "HAS_XFORMERS"):
+        setattr(mod, "HAS_XFORMERS", False)
 
 # Policy — gets new DPO LoRA adapter on top of SFT LoRA
 model, tokenizer = FastLanguageModel.from_pretrained(
